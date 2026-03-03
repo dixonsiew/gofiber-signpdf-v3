@@ -1,0 +1,366 @@
+basePath: /signpdf
+definitions:
+  dto.PostSignPdfConfigB:
+    properties:
+      customSignatureText:
+        maxLength: 80
+        type: string
+      dest:
+        maxLength: 300
+        minLength: 1
+        type: string
+      dtsFlag:
+        default: 1
+        maximum: 1
+        minimum: 1
+        type: integer
+      fileServerId:
+        maxLength: 20
+        minLength: 1
+        type: string
+      orgId:
+        maxLength: 45
+        minLength: 1
+        type: string
+      pCode:
+        maxLength: 45
+        minLength: 1
+        type: string
+      pin:
+        maxLength: 16
+        minLength: 1
+        type: string
+      qrPosition:
+        maxLength: 300
+        type: string
+      qrSize:
+        default: 0
+        maximum: 3
+        type: integer
+      qrValue:
+        maxLength: 200
+        type: string
+      remark:
+        maxLength: 300
+        type: string
+      signerFontSize:
+        maximum: 3
+        type: integer
+      signerImagePath:
+        maxLength: 300
+        type: string
+      signerTextRow:
+        maximum: 3
+        type: integer
+      signerXyPage:
+        maxLength: 300
+        minLength: 1
+        type: string
+      source:
+        maxLength: 300
+        minLength: 1
+        type: string
+      userId:
+        maxLength: 20
+        minLength: 1
+        type: string
+    required:
+    - dest
+    - dtsFlag
+    - fileServerId
+    - orgId
+    - pCode
+    - pin
+    - signerXyPage
+    - source
+    - userId
+    type: object
+  dto.PostVerifyRoamingCert:
+    properties:
+      orgId:
+        maxLength: 45
+        minLength: 1
+        type: string
+      pCode:
+        maxLength: 45
+        minLength: 1
+        type: string
+      userId:
+        maxLength: 20
+        minLength: 1
+        type: string
+    required:
+    - orgId
+    - pCode
+    - userId
+    type: object
+  dto.PostVerifyRoamingPin:
+    properties:
+      orgId:
+        maxLength: 45
+        minLength: 1
+        type: string
+      pCode:
+        maxLength: 45
+        minLength: 1
+        type: string
+      pin:
+        maxLength: 16
+        minLength: 1
+        type: string
+      userId:
+        maxLength: 20
+        minLength: 1
+        type: string
+    required:
+    - orgId
+    - pCode
+    - pin
+    - userId
+    type: object
+info:
+  contact: {}
+  description: This is a sign pdf server.
+  title: Swagger Sign PDF API
+  version: "1.0"
+paths:
+  /common/base64/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/cron/start:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/cron/stat:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/cron/stop:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/download/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/download/file/{seqno}:
+    get:
+      parameters:
+      - description: seqno
+        in: path
+        name: seqno
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/local/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/signPdf:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/signPdfAsync:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/upload/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/verifyRoamingCert:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/verifyRoamingCertAsync:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/verifyRoamingPin:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /common/verifyRoamingPinAsync:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Common
+  /dss/signPdf:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: SignPdfConfigB DTO
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PostSignPdfConfigB'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - DSS
+  /dss/verifyRoamingCert:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: VerifyRoamingCert DTO
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PostVerifyRoamingCert'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - DSS
+  /dss/verifyRoamingPin:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: VerifyRoamingPin DTO
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PostVerifyRoamingPin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - DSS
+  /test/base64/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Test
+  /test/download/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Test
+  /test/local/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Test
+  /test/signPdf:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Test
+  /test/upload/file:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Test
+swagger: "2.0"

@@ -1,0 +1,161 @@
+package cron
+
+import (
+    "fmt"
+    "signpdf/utils"
+    "sync"
+    "time"
+
+    "github.com/go-co-op/gocron/v2"
+    "github.com/go-resty/resty/v2"
+)
+
+var CronStatus string
+var CronTask gocron.Scheduler
+var client *resty.Client
+var port string
+var mGen sync.Mutex
+var mUpload sync.Mutex
+var mVCert sync.Mutex
+var mVPin sync.Mutex
+var mSign sync.Mutex
+var mDownload sync.Mutex
+var mb64 sync.Mutex
+
+func CatchPanic(funcName string) {
+    if err := recover(); err != nil {
+        utils.LogInfo(fmt.Sprintf("recovered from panic -%s", funcName))
+    }
+}
+
+func SetupCron(port string) {
+    InitCron(port)
+}
+
+func InitCron(p string) {
+    client = resty.New()
+    port = p
+    s, _ := gocron.NewScheduler()
+    _, _ = s.NewJob(
+        gocron.DurationJob(5 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoGenerateLocalFile")
+            DoGenerateLocalFile()
+        }),
+    )
+    _, _ = s.NewJob(
+        gocron.DurationJob(2 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoScanFile")
+            UploadFile()
+        }),
+    )
+    _, _ = s.NewJob(
+        gocron.DurationJob(2 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoVerifyRoamingCert")
+            //DoVerifyRoamingCert()
+        }),
+    )
+    _, _ = s.NewJob(
+        gocron.DurationJob(2 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoVerifyRoamingPin")
+            //DoVerifyRoamingPin()
+        }),
+    )
+    _, _ = s.NewJob(
+        gocron.DurationJob(2 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoSignFile")
+            DoSignFile()
+        }),
+    )
+    _, _ = s.NewJob(
+        gocron.DurationJob(2 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoDownloadFile")
+            DoDownloadFile()
+        }),
+    )
+    _, _ = s.NewJob(
+        gocron.DurationJob(2 * time.Second),
+        gocron.NewTask(func() {
+            defer CatchPanic("DoBase64FromLocalFile")
+            DoBase64FromLocalFile()
+        }),
+    )
+
+    CronTask = s
+    StartCron()
+}
+
+func StartCron() {
+    CronStatus = "RUNNING"
+    CronTask.Start()
+}
+
+func StopCron() {
+    if CronTask != nil {
+        CronTask.StopJobs()
+    }
+    
+    CronStatus = "STOP"
+}
+
+func DoGenerateLocalFile() {
+    mGen.Lock()
+    defer mGen.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/local/file", port)
+    _, _ = client.R().Get(s)
+}
+
+func DoScanFile() {
+    if utils.Setting.SFTP_HOST == "" {
+        return
+    }
+
+    UploadFile()
+}
+
+func UploadFile() {
+    mUpload.Lock()
+    defer mUpload.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/upload/file", port)
+    _, _ = client.R().Get(s)
+}
+
+func DoVerifyRoamingCert() {
+    mVCert.Lock()
+    defer mVCert.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/verifyRoamingCert", port)
+    _, _ = client.R().Get(s)
+}
+
+func DoVerifyRoamingPin() {
+    mVPin.Lock()
+    defer mVPin.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/verifyRoamingPin", port)
+    _, _ = client.R().Get(s)
+}
+
+func DoSignFile() {
+    mSign.Lock()
+    defer mSign.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/signPdf", port)
+    _, _ = client.R().Get(s)
+}
+
+func DoDownloadFile() {
+    mDownload.Lock()
+    defer mDownload.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/download/file", port)
+    _, _ = client.R().Get(s)
+}
+
+func DoBase64FromLocalFile() {
+    mb64.Lock()
+    defer mb64.Unlock()
+    s := fmt.Sprintf("http://localhost:%s/signpdf/test/base64/file", port)
+    _, _ = client.R().Get(s)
+}
