@@ -234,6 +234,33 @@ func ToString(s any) string {
     return r
 }
 
+func GetStatusCode(key string, mx fiber.Map) string {
+    r := ""
+    val, ok := mx[key]
+    if !ok {
+        return r
+    } else {
+        r = ToString(val)
+    }
+
+    return r
+}
+
+func GetString(key string, mx fiber.Map) string {
+    s := ""
+    val, ok := mx[key]
+    if !ok {
+        return s
+    }
+
+    str, ok := val.(string)
+    if !ok {
+        return s
+    }
+
+    return str
+}
+
 func GetBase64(s string) string {
     r := b64.StdEncoding.EncodeToString([]byte(s))
     return r

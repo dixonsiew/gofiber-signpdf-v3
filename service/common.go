@@ -451,3 +451,19 @@ func UpdateSignEventProcessDateTime(eventSeqNo string) {
         utils.LogError(err)
     }
 }
+
+func ResetSignEventSignPdfTimeAfter() {
+    db := database.GetDb()
+    if db == nil {
+        utils.LogInfo("db is nil")
+        return
+    }
+
+    q := `UPDATE ESIGN_EVENTS SET SIGN_PDF_START_TIME = NULL, SIGN_PDF_END_TIME = NULL, PROCESS_DATE_TIME = SYSTIMESTAMP
+        WHERE PROCESS_FLG = 'P' AND SIGN_PDF_START_TIME IS NOT NULL AND
+        CREATION_DATE_TIME < SYSDATE - INTERVAL '1' HOUR`
+    _, err := db.Exec(q)
+    if err != nil {
+        utils.LogError(err)
+    }
+}
